@@ -1,0 +1,185 @@
+/* ======================
+   Global Styles
+   ====================== */
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+  font-family: "Roboto", "Segoe UI", sans-serif;
+  background: #f4f6f9; /* Light background for main content */
+  color: #333;
+}
+
+/* ======================
+   App Layout
+   ====================== */
+.app-private {
+  display: flex;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ======================
+   Sidebar
+   ====================== */
+.sidebar {
+  width: 250px;
+  background: #0d3b66; /* Modern blue */
+  color: #fff;
+  padding: 25px 20px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.35s ease-in-out, box-shadow 0.35s ease-in-out;
+  border-radius: 0 12px 12px 0;
+  box-shadow: 4px 0 20px rgba(0,0,0,0.08);
+  overflow-y: auto; /* ✅ scrollable if sidebar content is long */
+}
+
+/* Sidebar Logo */
+.sidebar .logo {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 40px;
+  text-align: center;
+  color: #fff;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+/* Sidebar Navigation */
+.sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex-grow: 1; /* ✅ pushes logout button to bottom */
+}
+
+.sidebar nav a {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 8px;
+  color: #e0f7fa;
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.sidebar nav a:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  transform: translateX(5px);
+}
+
+.sidebar nav a.active {
+  background: linear-gradient(90deg, #00c6ff, #0072ff);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 198, 255, 0.3);
+}
+
+/* Logout Button */
+.sidebar .logout-btn {
+  margin-top: auto;
+  padding: 12px 16px;
+  background: linear-gradient(90deg, #ff4b2b, #ff416c);
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 500;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease, box-shadow 0.3s ease;
+}
+
+.sidebar .logout-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(255,65,108,0.4);
+  background: linear-gradient(90deg, #ff6a36, #ff1744);
+}
+
+/* ======================
+   Main Content
+   ====================== */
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  overflow-x: hidden;
+  transition: margin-left 0.35s ease-in-out;
+}
+
+/* ======================
+   Topbar
+   ====================== */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  border-radius: 0 0 12px 12px;
+  position: sticky;
+  top: 0;
+  z-index: 900;
+}
+
+/* Hamburger */
+.hamburger {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 28px;
+  color: #0288d1;
+  transition: all 0.3s ease;
+}
+
+.hamburger:hover {
+  transform: scale(1.1);
+  color: #00c6ff;
+}
+
+/* ======================
+   Responsive
+   ====================== */
+
+/* ✅ Mobile sidebar (fixed full screen) */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;   /* fixed to viewport */
+    transform: translateX(-100%);
+    z-index: 1000;
+    border-radius: 0 12px 12px 0;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 6px 0 24px rgba(0,0,0,0.2);
+  }
+
+  .app-main {
+    margin-left: 0;
+  }
+}
+
+/* ✅ Desktop sidebar (sticky, grows with content) */
+@media (min-width: 900px) {
+  .sidebar {
+    position: sticky;
+    top: 0;
+    min-height: 100vh; /* stretches with page */
+  }
+
+  .hamburger {
+    display: none;
+  }
+}

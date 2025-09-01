@@ -1,0 +1,120 @@
+.app-header {
+  display: flex;
+  justify-content: space-between;
+ 
+}
+
+.header-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.hamburger-btn {
+ 
+  border: none;
+  color: black;
+  font-size: 1.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+
+/* Default styles (for large screens) */
+.hamburger-btn {
+  display: none; /* hide by default on large screens */
+}
+
+/* Medium and small screens */
+@media (max-width: 888px) {
+  .hamburger-btn {
+    display: flex; /* show on medium and small screens */
+  }
+}
+
+/* Optional: adjust header layout for smaller screens */
+@media (max-width: 888px) {
+  .app-header {
+    justify-content: space-between;
+  }
+}
+
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  height: 60px;
+  /* background: #0288d1; */
+  color: black;
+  /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); */
+}
+
+/* .header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.hamburger-btn {
+  border: none;
+  background: transparent;
+  color: black;
+  font-size: 1.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+} */
+
+.app-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.notification {
+  position: relative;
+  cursor: pointer;
+}
+
+.notification .badge {
+  position: absolute;
+  top: -5px;
+  right: -10px;
+  background: red;
+  color: black;
+  font-size: 10px;
+  padding: 2px 5px;
+  border-radius: 50%;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.profile-avatar {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid black;
+}
+
+.profile-name {
+  font-weight: 500;
+}
+
+
+
+
