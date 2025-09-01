@@ -69,6 +69,7 @@ export default function App() {
   // Private routes
   return (
     <div className="app-private">
+        <ToastContainer position="top-right" autoClose={2000} />
       <Sidebar role={role} isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
       <div className="app-main">
         <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
@@ -136,7 +137,7 @@ export default function App() {
           </Routes>
         </main>
       </div>
-      <ToastContainer position="top-right" autoClose={2000} />
+    
     </div>
   );
 }

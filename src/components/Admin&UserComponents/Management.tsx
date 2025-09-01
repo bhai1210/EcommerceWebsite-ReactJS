@@ -10,14 +10,12 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 import UserForm from "./UserFrom";
-
 import {
   type UserType,
   roleLabel,
-  getUserSchema,
   type UserFormData,
 } from "./UserHelpers";
 
@@ -34,14 +32,14 @@ export default function UserManager() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  // ✅ Fetch all users
+  // Fetch all users
   const fetchUsers = async () => {
     setLoading(true);
     try {
       const res = await api.get<UserType[]>("/users");
       setUsers(res.data);
     } catch {
-      toast.error("Failed to fetch users");
+      Swal.fire("Error", "Failed to fetch users", "error");
     } finally {
       setLoading(false);
     }
@@ -51,31 +49,41 @@ export default function UserManager() {
     fetchUsers();
   }, []);
 
-  // ✅ Delete user
+  // Delete user
   const handleDelete = async (user: UserType) => {
-    if (!window.confirm(`Delete ${user.email}?`)) return;
-    try {
-      await api.delete(`/users/${user._id}`);
-      toast.success("User deleted");
-      fetchUsers();
-    } catch {
-      toast.error("Delete failed");
+    const result = await Swal.fire({
+      title: `Delete ${user.email}?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await api.delete(`/users/${user._id}`);
+        Swal.fire("Deleted!", "User has been deleted.", "success");
+        fetchUsers();
+      } catch {
+        Swal.fire("Error", "Delete failed", "error");
+      }
     }
   };
 
-  // ✅ Add user
+  // Add user
   const onAddSubmit = async (data: UserFormData) => {
     try {
       await api.post("/users", data);
-      toast.success("User added");
+      Swal.fire("Success", "User added successfully", "success");
       setOpenAdd(false);
       fetchUsers();
     } catch {
-      toast.error("Failed to add user");
+      Swal.fire("Error", "Failed to add user", "error");
     }
   };
 
-  // ✅ Edit user
+  // Edit user
   const onEditSubmit = async (data: UserFormData) => {
     if (!selectedUser) return;
     try {
@@ -83,11 +91,11 @@ export default function UserManager() {
         ...data,
         password: data.password?.trim() || undefined,
       });
-      toast.success("User updated");
+      Swal.fire("Success", "User updated successfully", "success");
       setOpenEdit(false);
       fetchUsers();
     } catch {
-      toast.error("Failed to update user");
+      Swal.fire("Error", "Failed to update user", "error");
     }
   };
 
@@ -98,10 +106,10 @@ export default function UserManager() {
   const pageCount = Math.ceil(filteredUsers.length / rowsPerPage);
 
   return (
-    <div className="p-4 max-w-6xl mx-auto space-y-4">
+    <div className="p-4 max-w-6xl mx-auto space-y-6">
       {/* Header */}
-      <div className="flex flex-col mt-3 sm:flex-row justify-between items-center gap-2">
-        <h2 className="text-2xl font-bold text-[#0d3b66]"></h2>
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+        <h2 className="text-2xl font-bold text-[#0d3b66]">User Management</h2>
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <Input
             placeholder="Search by email..."
@@ -111,7 +119,7 @@ export default function UserManager() {
           />
           <Button
             onClick={() => setOpenAdd(true)}
-            className="bg-[#0d3b66] hover:bg-[#0a2f52]"
+            className="bg-[#0d3b66] hover:bg-[#0a2f52] transition-all"
           >
             Add User
           </Button>
@@ -119,27 +127,27 @@ export default function UserManager() {
       </div>
 
       {/* Users Table */}
-      <Card>
-        <CardContent>
+      <Card className="shadow-xl rounded-2xl overflow-hidden">
+        <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <table className="min-w-full border border-gray-200">
+            <table className="min-w-full text-left border-collapse">
               <thead className="bg-[#0d3b66] text-white sticky top-0">
                 <tr>
-                  <th className="px-4 py-2 text-left">Email</th>
-                  <th className="px-4 py-2 text-left">Role</th>
-                  <th className="px-4 py-2 text-center">Actions</th>
+                  <th className="px-4 py-3">Email</th>
+                  <th className="px-4 py-3">Role</th>
+                  <th className="px-4 py-3 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={3} className="py-4 text-center">
+                    <td colSpan={3} className="py-6 text-center text-gray-500">
                       Loading...
                     </td>
                   </tr>
                 ) : filteredUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={3} className="py-4 text-center text-gray-500">
+                    <td colSpan={3} className="py-6 text-center text-gray-400">
                       No users found
                     </td>
                   </tr>
@@ -147,10 +155,13 @@ export default function UserManager() {
                   filteredUsers
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((user) => (
-                      <tr key={user._id}>
-                        <td className="border px-4 py-2">{user.email}</td>
-                        <td className="border px-4 py-2">{roleLabel(user.role)}</td>
-                        <td className="border px-4 py-2 text-center space-x-1">
+                      <tr
+                        key={user._id}
+                        className="hover:bg-gray-50 transition-colors duration-200"
+                      >
+                        <td className="px-4 py-3 border-b">{user.email}</td>
+                        <td className="px-4 py-3 border-b">{roleLabel(user.role)}</td>
+                        <td className="px-4 py-3 border-b text-center space-x-1">
                           <Button
                             size="sm"
                             variant="outline"
@@ -189,8 +200,8 @@ export default function UserManager() {
       </Card>
 
       {/* Pagination */}
-      <div className="flex justify-end items-center gap-2">
-        <span>
+      <div className="flex flex-wrap justify-end items-center gap-2">
+        <span className="text-gray-600">
           Page {page + 1} of {pageCount || 1}
         </span>
         <select
@@ -219,11 +230,7 @@ export default function UserManager() {
           <DialogHeader>
             <DialogTitle>Add User</DialogTitle>
           </DialogHeader>
-          <UserForm
-            isEdit={false}
-            onSubmit={onAddSubmit}
-            onCancel={() => setOpenAdd(false)}
-          />
+          <UserForm isEdit={false} onSubmit={onAddSubmit} onCancel={() => setOpenAdd(false)} />
         </DialogContent>
       </Dialog>
 
@@ -236,10 +243,7 @@ export default function UserManager() {
           {selectedUser && (
             <UserForm
               isEdit
-              defaultValues={{
-                email: selectedUser.email,
-                role: selectedUser.role,
-              }}
+              defaultValues={{ email: selectedUser.email, role: selectedUser.role }}
               onSubmit={onEditSubmit}
               onCancel={() => setOpenEdit(false)}
             />
@@ -253,13 +257,12 @@ export default function UserManager() {
           <DialogHeader>
             <DialogTitle>View User</DialogTitle>
           </DialogHeader>
-          <div className="space-y-2">
+          <div className="space-y-2 text-gray-700">
             <p>
               <strong>Email:</strong> {selectedUser?.email}
             </p>
             <p>
-              <strong>Role:</strong>{" "}
-              {selectedUser && roleLabel(selectedUser.role)}
+              <strong>Role:</strong> {selectedUser && roleLabel(selectedUser.role)}
             </p>
           </div>
           <DialogFooter className="flex justify-end mt-4">

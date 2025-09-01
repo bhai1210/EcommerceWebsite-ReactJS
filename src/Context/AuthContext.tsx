@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
 import { toast } from "react-toastify";
-
+import Swal from "sweetalert2";
 interface AuthContextType {
   token: string;
   role: string;
@@ -16,7 +16,7 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [token, setToken] = useState<string>(() => localStorage.getItem("token") || "");
-  const [role, setRole] = useState<string>(() => localStorage.getItem("roles") || "");
+  const [role, setRole] = useState<string>(() => localStorage.getItem("role") || "");
 
   // Persist token and role in localStorage
   useEffect(() => {
@@ -27,23 +27,32 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
 
     if (role) {
-      localStorage.setItem("roles", role);
+      localStorage.setItem("role", role);
     } else {
-      localStorage.removeItem("roles");
+      localStorage.removeItem("role");
     }
   }, [token, role]);
 
-  const login = (newToken: string, userRole: string) => {
-    setToken(newToken);
-    setRole(userRole);
-    toast.success("Login successful!");
-  };
+ // AuthContext.tsx
+const login = (newToken: string, userRole: string) => {
+  setToken(newToken);
+  setRole(userRole);
+  toast.success("✅ Login successful!", { autoClose: 2000 });
+};
 
-  const logout = () => {
-    setToken("");
-    setRole("");
-    toast.info("You have been logged out.");
-  };
+const logout = () => {
+  setToken("");
+  setRole("");
+    Swal.fire({
+      icon: "success",
+      title: "Logged Out",
+      text: "You have been logged out successfully.",
+      timer: 2000,
+      showConfirmButton: false,
+    });
+  toast.info("👋 You have been logged out.", { autoClose: 2000 });
+};
+
 
   const value = useMemo(() => ({ token, role, login, logout }), [token, role]);
 

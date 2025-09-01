@@ -1,13 +1,10 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion } from "framer-motion";
-
+import Swal from "sweetalert2";
 import api from "@/Services/api/api";
 import { useAuth } from "@/Context/AuthContext";
 import { Input } from "@/components/ui/input";
@@ -54,34 +51,51 @@ export default function Login() {
 
       localStorage.setItem("user", JSON.stringify(user));
       login(newToken, userRole);
+
+      Swal.fire({
+        icon: "success",
+        title: "Login Successful",
+        text: `Welcome back, ${res?.data?.user?.email.split("@")[0]}!`,
+        timer: 2000,
+        showConfirmButton: false,
+      });
     } catch (err: any) {
       const msg = err?.response?.data?.error || "Invalid email or password";
-      toast.error(msg, { autoClose: 2000 });
+      Swal.fire({
+        icon: "error",
+        title: "Login Failed",
+        text: msg,
+      });
     }
   };
 
   const formVariants = {
-    hidden: { opacity: 0, x: 50 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.5 } },
+    hidden: { opacity: 0, y: 40, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: { duration: 0.6, ease: "easeOut" },
+    },
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Left Image */}
+    <div className="flex min-h-screen bg-gradient-to-r from-blue-100 via-white to-blue-200">
+      {/* Left Side E-commerce Illustration */}
       <motion.div
-        className="hidden md:flex md:w-1/2 items-center justify-center bg-gradient-to-b from-blue-100 to-blue-200"
-        initial={{ opacity: 0, x: -50 }}
+        className="hidden md:flex md:w-1/2 items-center justify-center bg-gradient-to-b from-blue-200 via-white to-blue-100"
+        initial={{ opacity: 0, x: -60 }}
         animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.7 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
       >
         <img
           src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.webp"
-          alt="Login illustration"
-          className="w-3/4 h-auto rounded-xl shadow-2xl"
+          alt="E-commerce illustration"
+          className="w-3/4 h-auto rounded-2xl shadow-2xl transform hover:scale-105 transition duration-500"
         />
       </motion.div>
 
-      {/* Right Form */}
+      {/* Right Side Form */}
       <motion.div
         className="flex w-full md:w-1/2 items-center justify-center p-6"
         initial="hidden"
@@ -121,7 +135,7 @@ export default function Login() {
             <div className="flex justify-between items-center text-sm">
               <button
                 type="button"
-                className="text-blue-600 hover:underline transition"
+                className="text-[#0d3b66] hover:underline transition"
                 onClick={() => navigate("/forgot-password")}
               >
                 Forgot Password?
@@ -140,7 +154,7 @@ export default function Login() {
               Don’t have an account?{" "}
               <button
                 type="button"
-                className="text-blue-600 hover:underline"
+                className="text-[#0d3b66] hover:underline"
                 onClick={() => navigate("/register")}
               >
                 Register
@@ -149,8 +163,6 @@ export default function Login() {
           </form>
         </div>
       </motion.div>
-
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
     </div>
   );
 }

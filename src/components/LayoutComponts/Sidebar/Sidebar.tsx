@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import "./SidebarLayout.css";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../../Context/AuthContext";
+import Swal from "sweetalert2";
 
 interface SidebarProps {
   role: "admin" | "user" | "user2";
@@ -46,10 +47,17 @@ export default function Sidebar({ role, isOpen, setIsOpen }: SidebarProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen, setIsOpen]);
 
-  // Logout wrapper to also close sidebar
+  // Logout wrapper
   const handleLogout = () => {
     logout();
     setIsOpen(false);
+    Swal.fire({
+      icon: "success",
+      title: "Logged Out",
+      text: "You have been logged out successfully.",
+      timer: 2000,
+      showConfirmButton: false,
+    });
   };
 
   return (
