@@ -5,7 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 
 import api from "@/Services/api/api";
 import { Button } from "@/components/ui/button";
@@ -19,12 +19,12 @@ import {
 } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 
-// ✅ Schema - role starts as optional
+// ✅ Fixed Schema
 const registerSchema = z.object({
   email: z.string().email("Enter a valid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
   role: z.enum(["user", "admin", "user2"], {
-    errorMap: () => ({ message: "Please select a role" }),
+    required_error: "Please select a role",
   }),
 });
 
@@ -39,7 +39,7 @@ export default function Register() {
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { email: "", password: "", role: undefined as any }, // ✅ no empty string
+    defaultValues: { email: "", password: "", role: undefined },
   });
 
   const onSubmit = async (data: RegisterFormData) => {
@@ -53,8 +53,8 @@ export default function Register() {
     }
   };
 
-  // Framer Motion variants
-  const containerVariants = {
+  // ✅ Framer Motion variants with proper typing
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -62,7 +62,7 @@ export default function Register() {
     },
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 40 },
     show: {
       opacity: 1,
@@ -163,10 +163,7 @@ export default function Register() {
                   name="role"
                   control={control}
                   render={({ field }) => (
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
+                    <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger className="w-full border-[#0d3b66]/40 focus:ring-[#0d3b66] focus:border-[#0d3b66]">
                         <SelectValue placeholder="Select Role" />
                       </SelectTrigger>

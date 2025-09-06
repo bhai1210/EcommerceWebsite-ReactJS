@@ -1,10 +1,21 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import { UseTransactionByhourdata } from "@/Services/hooks/usetransactionbyhour";
+import { useTransactionByHourData } from "@/Services/hooks/useTransactionByHour";
+
+// Define the type for heatmap data
+interface HeatmapData {
+  days: string[];
+  timeSlots: string[];
+  data: number[][];
+}
 
 export default function TransactionByHour() {
-  const { data: heatmap, isLoading, isError } = UseTransactionByhourdata();
+  const { data: heatmap, isLoading, isError } = useTransactionByHourData() as {
+    data: HeatmapData;
+    isLoading: boolean;
+    isError: boolean;
+  };
 
   if (isLoading)
     return <div className="text-center py-10 text-gray-400">Loading...</div>;
@@ -13,6 +24,7 @@ export default function TransactionByHour() {
 
   const maxValue = Math.max(...heatmap.data.flat());
 
+  // Function to calculate color intensity
   const getColor = (value: number) => {
     const intensity = value / maxValue;
     const start = [230, 240, 255]; // light blue
@@ -35,7 +47,7 @@ export default function TransactionByHour() {
           <div className="min-w-[600px] sm:min-w-0 grid grid-cols-[80px_repeat(7,_1fr)] sm:grid-cols-[120px_repeat(7,_1fr)] gap-1.5 sm:gap-2">
             {/* Header Days */}
             <div></div>
-            {heatmap.days.map((day, idx) => (
+            {heatmap.days.map((day: string, idx: number) => (
               <motion.div
                 key={day}
                 className="text-center text-xs sm:text-sm font-semibold text-gray-500"
@@ -48,7 +60,7 @@ export default function TransactionByHour() {
             ))}
 
             {/* Rows */}
-            {heatmap.data.map((row, rowIndex) => (
+            {heatmap.data.map((row: number[], rowIndex: number) => (
               <React.Fragment key={rowIndex}>
                 {/* Time Slot */}
                 <motion.div
@@ -61,7 +73,7 @@ export default function TransactionByHour() {
                 </motion.div>
 
                 {/* Heatmap cells */}
-                {row.map((value, colIndex) => {
+                {row.map((value: number, colIndex: number) => {
                   const intensity = value / maxValue;
                   return (
                     <motion.div
