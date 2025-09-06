@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 
+// ✅ Schema - role starts as optional
 const registerSchema = z.object({
   email: z.string().email("Enter a valid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
@@ -38,7 +39,7 @@ export default function Register() {
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { email: "", password: "", role: "" },
+    defaultValues: { email: "", password: "", role: undefined as any }, // ✅ no empty string
   });
 
   const onSubmit = async (data: RegisterFormData) => {
@@ -162,7 +163,10 @@ export default function Register() {
                   name="role"
                   control={control}
                   render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
                       <SelectTrigger className="w-full border-[#0d3b66]/40 focus:ring-[#0d3b66] focus:border-[#0d3b66]">
                         <SelectValue placeholder="Select Role" />
                       </SelectTrigger>

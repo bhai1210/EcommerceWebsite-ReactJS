@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "react-toastify";
-
+import axios from "axios";
 interface Props {
   cart: any[];
   step: number;
@@ -34,31 +34,172 @@ const CartSidebar = forwardRef<HTMLDivElement, Props>(
     },
     ref
   ) => {
-    const handleAddressSubmit = (e: FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      const formData = new FormData(e.currentTarget);
-      dispatch({
-        type: "checkout/setAddress",
-        payload: {
-          address: formData.get("address"),
-          city: formData.get("city"),
-          state: formData.get("state"),
-          zip: formData.get("zip"),
-          country: formData.get("country"),
-        },
-      });
-      setStep(3);
+  const handleAddressSubmit = (e: FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  const formData = new FormData(e.currentTarget);
+  const addressData = {
+    address: formData.get("address"),
+    city: formData.get("city"),
+    state: formData.get("state"),
+    zip: formData.get("zip"),
+    country: formData.get("country"),
+  };
+  console.log("Submitted Address:", addressData);
+
+  console.log("Cart:", cart);
+console.log("Checkout:", checkout);
+console.log("Cart Total:", cartTotal);
+console.log("Shipping Charge:", shippingCharge);
+console.log("Final Total:", finalTotal);
+
+
+  dispatch({ type: "checkout/setAddress", payload: addressData });
+  setStep(3);
+};
+
+
+// const handlePayment = async () => {
+//   if (!checkout.address) {
+//     return toast.error("Please enter shipping address!");
+//   }
+
+//   try {
+//     // Get user from localStorage
+//     const storedUser = localStorage.getItem("user");
+//     const user = storedUser ? JSON.parse(storedUser) : null;
+
+//     if (!user?._id) {
+//       return toast.error("User not found, please login!");
+//     }
+
+//     // Build order payload
+//     const orderData = {
+//       submittedAddress: checkout, // Address user submitted
+//       cart: cart,                 // Cart items
+//       checkout: checkout,         // Optional checkout object
+//       cartTotal: cartTotal,
+//       shippingCharge: shippingCharge,
+//       finalTotal: finalTotal,
+//       user: {
+//         _id: user._id,
+//         email: user.email,
+//         role: user.role,
+//       },
+//     };
+
+//     // Call backend API
+//     const res = await axios.post("http://localhost:5000/orders", orderData);
+
+//     toast.success("🎉 Payment Success! (Demo)");
+//     console.log("Order saved:", res.data);
+
+//     // Clear cart/checkout after saving
+//     dispatch({ type: "cart/clearCart" });
+//     dispatch({ type: "checkout/clearCheckout" });
+//     onClose();
+//     setStep(1);
+//   } catch (err: any) {
+//     console.error("Payment error:", err);
+//     toast.error(err.response?.data?.message || "Payment failed");
+//   }
+// };
+
+
+
+const handlePayment = async () => {
+  if (!checkout.address) {
+    return toast.error("Please enter shipping address!");
+  }
+
+  try {
+    // Get user from localStorage
+    const storedUser = localStorage.getItem("user");
+    const user = storedUser ? JSON.parse(storedUser) : null;
+
+    if (!user?._id) {
+      return toast.error("User not found, please login!");
+    }
+
+    // Build order payload
+    const orderData = {
+      submittedAddress: checkout,
+      cart: cart,
+      checkout: checkout,
+      cartTotal: cartTotal,
+      shippingCharge: shippingCharge,
+      finalTotal: finalTotal,
+      user: {
+        _id: user._id,
+        email: user.email,
+        role: user.role,
+      },
     };
 
-    const handlePayment = async () => {
-      if (!checkout.address)
-        return toast.error("Please enter shipping address!");
-      toast.success("🎉 Payment Success! (Demo)");
-      dispatch({ type: "cart/clearCart" });
-      dispatch({ type: "checkout/clearCheckout" });
-      onClose();
-      setStep(1);
+    // 1️⃣ Request Razorpay order from backend
+    const { data: order } = await axios.post(
+      "http://localhost:5000/payments/create-order",
+      { amount: finalTotal * 100 } // amount in paise
+    );
+
+    // 2️⃣ Open Razorpay checkout
+    const options = {
+      key: "rzp_live_R9XuwBFRtEokgL", // replace with your key
+      amount: order.amount,
+      currency: order.currency,
+      name: "My Shop",
+      description: "Test Transaction",
+      order_id: order.id,
+      handler: async function (response: any) {
+        try {
+          // 3️⃣ Verify payment on backend
+          const verifyRes = await axios.post(
+            "http://localhost:5000/payments/verify",
+            {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            }
+          );
+
+          if (verifyRes.data.success) {
+            // 4️⃣ Save order in DB (your original code kept intact)
+            const res = await axios.post(
+              "http://localhost:5000/api/orders",
+              orderData
+            );
+
+            toast.success("🎉 Payment Success!");
+            console.log("Order saved:", res.data);
+
+            dispatch({ type: "cart/clearCart" });
+            dispatch({ type: "checkout/clearCheckout" });
+            onClose();
+            setStep(1);
+          } else {
+            toast.error("Payment verification failed!");
+          }
+        } catch (err: any) {
+          console.error("Verification error:", err);
+          toast.error("Payment failed!");
+        }
+      },
+      prefill: {
+        name: user?.name,
+        email: user?.email,
+      },
+      theme: {
+        color: "#3399cc",
+      },
     };
+
+    const rzp = new (window as any).Razorpay(options);
+    rzp.open();
+  } catch (err: any) {
+    console.error("Payment error:", err);
+    toast.error(err.response?.data?.message || "Payment failed");
+  }
+};
+
 
     return (
       <motion.div

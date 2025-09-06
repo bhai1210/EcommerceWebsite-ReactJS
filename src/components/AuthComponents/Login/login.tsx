@@ -10,6 +10,9 @@ import { useAuth } from "@/Context/AuthContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
+// ✅ Define same Role type as AuthContext
+type Role = "user" | "admin" | "user2";
+
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
@@ -24,12 +27,12 @@ export default function Login() {
   // ✅ Redirect by role after login
   useEffect(() => {
     if (token && role) {
-      const pathMap: Record<string, string> = {
+      const pathMap: Record<Role, string> = {
         admin: "/User",
         user: "/ClassCreate",
         user2: "/category",
       };
-      navigate(pathMap[role] || "/", { replace: true });
+      navigate(pathMap[role], { replace: true });
     }
   }, [token, role, navigate]);
 
@@ -45,9 +48,15 @@ export default function Login() {
   const onSubmit = async (data: LoginFormData) => {
     try {
       const res = await api.post("/auth/login", data);
-      const newToken = res.data.token;
-      const userRole = res.data.user.role;
+      const newToken: string = res.data.token;
+      const backendRole: string = res.data.user.role;
       const user = res.data.user;
+
+      // ✅ Ensure backendRole matches Role type
+      const userRole: Role =
+        backendRole === "admin" || backendRole === "user" || backendRole === "user2"
+          ? backendRole
+          : "user"; // fallback
 
       localStorage.setItem("user", JSON.stringify(user));
       login(newToken, userRole);

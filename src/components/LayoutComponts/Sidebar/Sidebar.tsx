@@ -28,6 +28,7 @@ export default function Sidebar({ role, isOpen, setIsOpen }: SidebarProps) {
       { label: "Add Category", path: "/category" },
       { label: "Employee Management", path: "/employee" },
       { label: "Purchase Items", path: "/purchase" },
+         { label: "Shell Informations", path: "/Orders" },
     ],
     user: [{ label: "Purchase Items", path: "/purchase" }],
     user2: [{ label: "Categories", path: "/category" }],

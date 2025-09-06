@@ -19,6 +19,7 @@ import CategoryManager from "./components/CategoryComponents/Category";
 import UserManager from "./components/Admin&UserComponents/Management";
 import ClassCreate from "./components/ProductComponents/CreateProduct/CreateProduct";
 import EmployeeManagement from "./components/EmployeeComponents/EmployeeManagement";
+import ViewOrder from "./components/OrderComponents/ViewOrder";
 
 import "./App.css";
 
@@ -83,6 +84,16 @@ export default function App() {
                 </PrivateRoute>
               }
             />
+
+             <Route
+              path="/Orders"
+              element={
+                <PrivateRoute>
+                  <ViewOrder />
+                </PrivateRoute>
+              }
+            />
+
             <Route
               path="/category"
               element={

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm, Controller } from "react-hook-form";
@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 
 import api from "@/Services/api/api";
 import { createClass, updateClass, fetchClasses, deleteClass } from "@/features/classSlice";
+
 import type { AppDispatch } from "@/Store/store";
 
 import { Button } from "@/components/ui/button";
@@ -88,13 +89,7 @@ export default function ClassCreate() {
   };
 
   const resetForm = () => {
-    reset({
-      name: "",
-      price: "",
-      description: "",
-      stockcount: "",
-      category: "",
-    });
+    reset({ name: "", price: "", description: "", stockcount: "", category: "" });
     setImageUrl(null);
     setEditId(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -156,12 +151,14 @@ export default function ClassCreate() {
   const getCategoryName = (cat: any) =>
     typeof cat === "string" ? categories.find((c) => c.id === cat)?.name || "N/A" : cat?.name || "N/A";
 
-  const renderError = (field: keyof FormValues) => errors[field] && <p className="text-red-500 text-sm mt-1">{errors[field]?.message}</p>;
+  const renderError = (field: keyof FormValues) =>
+    errors[field] && <p className="text-red-500 text-sm mt-1">{errors[field]?.message}</p>;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 via-white to-gray-50 p-6">
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
         <Card className="max-w-6xl mx-auto rounded-3xl shadow-2xl p-6 bg-white border border-gray-200">
+          {/* Title */}
           <motion.h2
             className="text-3xl font-bold text-blue-900 text-center mb-6"
             initial={{ y: -20, opacity: 0 }}
@@ -171,6 +168,7 @@ export default function ClassCreate() {
             {editId ? "Edit Product" : "Create Product"}
           </motion.h2>
 
+          {/* Form */}
           <motion.form
             onSubmit={handleSubmit(onSubmit)}
             className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10"
@@ -178,204 +176,99 @@ export default function ClassCreate() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6 }}
           >
-            {/* Product Name */}
-            <motion.div className="flex flex-col" whileHover={{ scale: 1.02 }}>
-              <Input
-                placeholder="Product Name"
-                className="h-12 shadow-sm hover:shadow-md transition-shadow"
-                {...register("name", { required: "Name is required" })}
-              />
-              {renderError("name")}
-            </motion.div>
+            {/* Inputs */}
+            <Input placeholder="Product Name" {...register("name", { required: "Name is required" })} />
+            {renderError("name")}
 
-            {/* Price */}
-            <motion.div className="flex flex-col" whileHover={{ scale: 1.02 }}>
-              <Input
-                type="number"
-                placeholder="Price"
-                className="h-12 shadow-sm hover:shadow-md transition-shadow"
-                {...register("price", {
-                  required: "Price is required",
-                  min: { value: 0, message: "Price must be at least 0" },
-                })}
-              />
-              {renderError("price")}
-            </motion.div>
+            <Input type="number" placeholder="Price" {...register("price", { required: "Price is required" })} />
+            {renderError("price")}
 
-            {/* Description */}
-            <motion.div className="flex flex-col" whileHover={{ scale: 1.02 }}>
-              <Textarea
-                placeholder="Description"
-                className="h-28 p-2 resize-none shadow-sm hover:shadow-md transition-shadow"
-                {...register("description", { required: "Description is required" })}
-              />
-              {renderError("description")}
-            </motion.div>
+            <Textarea placeholder="Description" {...register("description", { required: "Description is required" })} />
+            {renderError("description")}
 
-            {/* Stock Count */}
-            <motion.div className="flex flex-col" whileHover={{ scale: 1.02 }}>
-              <Input
-                type="number"
-                placeholder="Stock Count"
-                className="h-12 shadow-sm hover:shadow-md transition-shadow"
-                {...register("stockcount", {
-                  required: "Stock count is required",
-                  min: { value: 0, message: "Stock count must be at least 0" },
-                })}
-              />
-              {renderError("stockcount")}
-            </motion.div>
+            <Input
+              type="number"
+              placeholder="Stock Count"
+              {...register("stockcount", { required: "Stock count is required" })}
+            />
+            {renderError("stockcount")}
 
             {/* Category */}
-            <motion.div className="flex flex-col" whileHover={{ scale: 1.02 }}>
-              <Controller
-                control={control}
-                name="category"
-                rules={{ required: "Category is required" }}
-                render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger className="h-12 shadow-sm hover:shadow-md transition-shadow">
-                      <SelectValue placeholder="Select Category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((cat) => (
-                        <SelectItem key={cat.id} value={cat.id}>
-                          {cat.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {renderError("category")}
-            </motion.div>
-
-            {/* Image Upload */}
-            <motion.div className="col-span-full flex flex-col" whileHover={{ scale: 1.02 }}>
-              <label className="block mb-1 font-medium text-gray-700">
-                {editId ? "Change Image" : "Upload Image"}
-              </label>
-              <input
-                type="file"
-                accept="image/*"
-                ref={fileInputRef}
-                className="block w-full border rounded p-2 hover:border-blue-500 transition-colors"
-                onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])}
-              />
-              {imageUrl && (
-                <motion.img
-                  src={imageUrl}
-                  alt="Preview"
-                  className="mt-2 w-32 h-32 object-cover rounded-md shadow-lg"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 200 }}
-                />
+            <Controller
+              control={control}
+              name="category"
+              rules={{ required: "Category is required" }}
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               )}
-            </motion.div>
+            />
+            {renderError("category")}
 
-            {/* Buttons */}
-            <motion.div className="flex gap-4 col-span-full mt-3">
-              <Button
-                type="submit"
-                className="bg-blue-900 text-white h-12 shadow-lg hover:scale-105 transform transition-all"
-              >
-                {editId ? "Update" : "Create"}
-              </Button>
-              {editId && (
-                <Button type="button" variant="outline" className="h-12" onClick={resetForm}>
-                  Cancel
-                </Button>
-              )}
-            </motion.div>
+            {/* File Upload */}
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])}
+            />
+            {imageUrl && <img src={imageUrl} alt="Preview" className="w-32 h-32 object-cover rounded-md mt-2" />}
+
+            <Button type="submit">{editId ? "Update" : "Create"}</Button>
+            {editId && <Button onClick={resetForm}>Cancel</Button>}
           </motion.form>
 
-          {/* Product Table */}
-          <motion.h3
-            className="text-lg font-semibold  mb-3"
-            initial={{ y: -10, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.6 }}
-          >
-            Product List
-          </motion.h3>
+          {/* Table */}
+          <Table className="w-full rounded-xl overflow-hidden shadow-lg">
+            <TableHeader>
+              <TableRow>
+                {["Name", "Price", "Description", "Stock", "Category", "Image", "Actions"].map((header) => (
+                  <TableHead key={header}>{header}</TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {currentClasses.map((cls: ClassItem) => (
+                <TableRow key={cls._id} className="hover:bg-blue-50 transition-colors cursor-pointer">
+                  <TableCell>{cls.name}</TableCell>
+                  <TableCell>{formatPrice(cls.price)}</TableCell>
+                  <TableCell>{cls.description}</TableCell>
+                  <TableCell>{cls.stockcount?.join(", ")}</TableCell>
+                  <TableCell>{getCategoryName(cls.category)}</TableCell>
+                  <TableCell>
+                    {cls.image ? <img src={cls.image} alt="class" className="w-16 h-16 object-cover" /> : "No Image"}
+                  </TableCell>
+                  <TableCell>
+                    <Button onClick={() => setEditId(cls._id)}>Edit</Button>
+                    <Button variant="destructive" onClick={() => onDelete(cls._id)}>
+                      Delete
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
 
-          {loading ? (
-            <p className="text-center py-4">Loading...</p>
-          ) : (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
-              <Table className="w-full rounded-xl overflow-hidden shadow-lg">
-              <TableHeader className="text-white">
-  <TableRow>
-    {["Name", "Price", "Description", "Stock", "Category", "Image", "Actions"].map((header) => (
-      <TableHead key={header}>{header}</TableHead>
-    ))}
-  </TableRow>
-</TableHeader>
-
-                <TableBody>
-                  {currentClasses.map((cls: ClassItem) => (
-                    <TableRow
-                      key={cls._id}
-                      className="hover:bg-blue-50 transition-colors cursor-pointer"
-                      whileHover={{ scale: 1.01 }}
-                    >
-                      <TableCell>{cls.name}</TableCell>
-                      <TableCell>{formatPrice(cls.price)}</TableCell>
-                      <TableCell className="max-w-[200px] truncate">{cls.description}</TableCell>
-                      <TableCell>{cls.stockcount?.join(", ")}</TableCell>
-                      <TableCell>{getCategoryName(cls.category)}</TableCell>
-                      <TableCell>
-                        {cls.image ? (
-                          <motion.img
-                            src={cls.image}
-                            alt="class"
-                            className="w-16 h-16 object-cover rounded"
-                            whileHover={{ scale: 1.1 }}
-                          />
-                        ) : (
-                          "No Image"
-                        )}
-                      </TableCell>
-                      <TableCell className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => {
-                            setEditId(cls._id);
-                            reset({
-                              name: cls.name,
-                              price: String(cls.price),
-                              description: cls.description,
-                              stockcount: String(cls.stockcount[0] || ""),
-                              category: typeof cls.category === "string" ? cls.category : cls.category?._id || "",
-                            });
-                            setImageUrl(cls.image || null);
-                          }}
-                        >
-                          Edit
-                        </Button>
-                        <Button size="sm" variant="destructive" onClick={() => onDelete(cls._id)}>
-                          Delete
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-
-              {/* Pagination */}
-              <div className="flex justify-end mt-4 gap-2 items-center">
-                <Button size="sm" disabled={currentPage <= 1} onClick={() => setCurrentPage(currentPage - 1)}>
-                  Prev
-                </Button>
-                <span className="px-2">{currentPage} / {totalPages}</span>
-                <Button size="sm" disabled={currentPage >= totalPages} onClick={() => setCurrentPage(currentPage + 1)}>
-                  Next
-                </Button>
-              </div>
-            </motion.div>
-          )}
+          {/* Pagination */}
+          <div className="flex justify-end mt-4 gap-2">
+            <Button size="sm" disabled={currentPage <= 1} onClick={() => setCurrentPage(currentPage - 1)}>
+              Prev
+            </Button>
+            <span>{currentPage} / {totalPages}</span>
+            <Button size="sm" disabled={currentPage >= totalPages} onClick={() => setCurrentPage(currentPage + 1)}>
+              Next
+            </Button>
+          </div>
         </Card>
       </motion.div>
     </div>

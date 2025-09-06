@@ -5,7 +5,7 @@ import { getToken } from "../token/token";
 
 
 const api = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: "https://student-management-backend-node-rd8.vercel.app",
   withCredentials: false,
 });
 
